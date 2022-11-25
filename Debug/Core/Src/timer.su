@@ -1,0 +1,6 @@
+timer.c:14:6:set_Trafic_Timer	16	static
+timer.c:19:6:Trafic_Timer_Run	4	static
+timer.c:28:6:set_seg7_led_timer	16	static
+timer.c:32:6:seg7_led_timer_run	4	static
+timer.c:41:6:set_blink_timer	16	static
+timer.c:45:6:blink_timer_run	4	static
