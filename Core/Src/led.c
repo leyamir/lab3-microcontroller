@@ -7,6 +7,7 @@
 #include "led.h"
 #include "timer.h"
 #include "main.h"
+#include "global.h"
 seg7_led_order = 0;
 
 void normal_led_buffer() {

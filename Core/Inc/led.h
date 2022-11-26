@@ -9,8 +9,7 @@
 #define INC_LED_H_
 
 void display7SEG(int num, GPIO_TypeDef * GPIO_TYPE, uint16_t a_Pin, uint16_t b_Pin, uint16_t c_Pin, uint16_t d_Pin, uint16_t e_Pin, uint16_t f_Pin, uint16_t g_Pin);
-int seg7_led_buffer[4];
-int seg7_led_order;
+
 void scan_seg7_led();
 void blink();
 void turn_off_all_led();

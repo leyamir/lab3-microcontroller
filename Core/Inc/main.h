@@ -54,15 +54,7 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-int mode;
-int red_count_down;
-int green_count_down;
-int yellow_count_down;
 
-int current_state_trafic1; // 1: red, 2: green, 3: yellow
-int current_state_trafic2;
-int trafic1_count_down;
-int trafic2_count_down;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -114,6 +106,9 @@ int trafic2_count_down;
 #define RED_STATE 1
 #define GREEN_STATE 2
 #define YELLOW_STATE 3
+#define DEFAULT_RED_COUNT_DOWN 5
+#define DEFAULT_GREEN_COUNT_DOWN 3
+#define DEFAULT_YELLOW_COUNT_DOWN 2
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

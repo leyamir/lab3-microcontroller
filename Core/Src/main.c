@@ -25,6 +25,8 @@
 #include "timer.h"
 #include "button.h"
 #include "led.h"
+#include "global.h"
+#include "mode_control.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -34,9 +36,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define DEFAULT_RED_COUNT_DOWN 5
-#define DEFAULT_GREEN_COUNT_DOWN 3
-#define DEFAULT_YELLOW_COUNT_DOWN 2
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -61,7 +61,7 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-mode = 1;
+
 /* USER CODE END 0 */
 
 /**
@@ -96,23 +96,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(& htim2);
 
-  int duration = 500;
-  int frequent = 1000 / duration;
-
-  red_count_down = DEFAULT_RED_COUNT_DOWN;
-  green_count_down = DEFAULT_GREEN_COUNT_DOWN;
-  yellow_count_down = DEFAULT_YELLOW_COUNT_DOWN;
-
-  current_state_trafic1 = 1; // 1: red, 2: green, 3: yellow
-  current_state_trafic2 = 2;
-  trafic1_count_down = red_count_down;
-  trafic2_count_down = green_count_down;
-
-  seg7_led_buffer[0] = trafic1_count_down / 10;
-  seg7_led_buffer[1] = trafic1_count_down % 10;
-  seg7_led_buffer[2] = trafic2_count_down / 10;
-  seg7_led_buffer[3] = trafic2_count_down % 10;
   init_led();
+  init_data();
   set_seg7_led_timer(100);
   set_Trafic_Timer(duration);
   set_blink_timer(500);
@@ -124,130 +109,28 @@ int main(void)
   {
 	  if (change_mode == 1) {
 		  turn_off_all_led();
-		  switch (mode) {
-		  case NORMAL_MODE:
-			  mode = 2;
-			  break;
-		  case ADJUST_RED_LED:
-		  	  mode = 3;
-		  	  break;
-		  case ADJUST_YELLOW_LED:
-			  mode = 4;
-			  break;
-		  case ADJUST_GREEN_LED:
-			  mode = 2;
-			  break;
-		  default:
-			  break;
-		  }
+		  change_mode_state();
 		  change_mode = 0;
 	  }
 	  if (save_all_change == 1) {
-		  mode = 1;
-		  current_state_trafic1 = RED_STATE;
-		  current_state_trafic2 = GREEN_STATE;
-		  trafic1_count_down = red_count_down;
-		  trafic2_count_down = green_count_down;
-		  init_led();
-		  set_seg7_led_timer(100);
-		  set_Trafic_Timer(duration);
-		  set_blink_timer(500);
+		  run_set_mode();
 		  save_all_change = 0;
 	  }
 	  if (mode == NORMAL_MODE) {
 		  // TODO run system
-		  normal_led_buffer();
-		  scan_seg7_led();
-		  if (trafic_flag == 1) {
-			  if (frequent > 0) {
-				  frequent--;
-				  if (frequent == 0) {
-					  trafic1_count_down--;
-					  trafic2_count_down--;
-					  frequent = 1000 / duration;
-				  }
-			  }
-			  set_Trafic_Timer(duration);
-		  }
-		  if (trafic1_count_down == 0 && current_state_trafic1 == RED_STATE) {
-			  show_green(1);
-			  trafic1_count_down = green_count_down;
-			  current_state_trafic1 = GREEN_STATE;
-		  }
-		  if (trafic1_count_down == 0 && current_state_trafic1 == GREEN_STATE) {
-			  show_yellow(1);
-			  trafic1_count_down = yellow_count_down;
-			  current_state_trafic1 = YELLOW_STATE;
-		  }
-		  if (trafic1_count_down == 0 && current_state_trafic1 == YELLOW_STATE) {
-			  show_red(1);
-			  trafic1_count_down = red_count_down;
-			  current_state_trafic1 = RED_STATE;
-		  }
-
-		  if (trafic2_count_down == 0 && current_state_trafic2 == RED_STATE) {
-			  show_green(2);
-			  trafic2_count_down = green_count_down;
-			  current_state_trafic2 = GREEN_STATE;
-		  }
-		  if (trafic2_count_down == 0 && current_state_trafic2 == GREEN_STATE) {
-			  show_yellow(2);
-			  trafic2_count_down = yellow_count_down;
-			  current_state_trafic2 = YELLOW_STATE;
-		  }
-		  if (trafic2_count_down == 0 && current_state_trafic2 == YELLOW_STATE) {
-			  show_red(2);
-			  trafic2_count_down = red_count_down;
-			  current_state_trafic2 = RED_STATE;
-		  }
+		  run_normal_mode();
 	  }
 	  else if (mode == ADJUST_RED_LED) {
 		  // TODO adjust red
-		  adjust_mode_red_led_buffer();
-		  scan_seg7_led();
-		  if (blink_flag == 1) {
-			  blink();
-			  set_blink_timer(500);
-		  }
-		  if (inc_detect == 1) {
-			  red_count_down += 1;
-			  if (red_count_down == 100) {
-				  red_count_down = DEFAULT_RED_COUNT_DOWN;
-			  }
-			  inc_detect = 0;
-		  }
+		  run_adjust_red_mode();
 	  }
 	  else if (mode == ADJUST_YELLOW_LED) {
 		  // TODO adjust green
-		  adjust_mode_yellow_led_buffer();
-		  scan_seg7_led();
-		  if (blink_flag == 1) {
-			  blink();
-			  set_blink_timer(500);
-		  }
-		  if (inc_detect == 1) {
-			  yellow_count_down += 1;
-			  if (yellow_count_down == 100) {
-				  yellow_count_down = DEFAULT_YELLOW_COUNT_DOWN;
-			  }
-			  inc_detect = 0;
-		  }
+		  run_adjust_yellow_mode();
 	  }
 	  else if (mode == ADJUST_GREEN_LED) {
 		  // TODO adjust yellow
-		  adjust_mode_green_led_buffer();
-		  scan_seg7_led();
-		  if (blink_flag == 1) {
-			  blink();
-			  set_blink_timer(500);
-		  }
-		  if (inc_detect == 1) {
-			  green_count_down += 1;
-			  if (green_count_down == 100) {
-				  green_count_down = DEFAULT_GREEN_COUNT_DOWN;
-			  }
-			  inc_detect = 0;
-		  }
+		  run_adjust_green_mode();
 	  }
     /* USER CODE END WHILE */
 
